@@ -1,0 +1,130 @@
+server:
+  port: 30010
+  address: 0.0.0.0
+spring:
+  mvc:
+    pathmatch:
+      matching:
+        strategy:
+          ant_path_matcher
+  datasource:
+    url: jdbc:mysql://120.46.63.223:3306/flash?characterEncoding=utf-8
+    username: flash
+    password: ruanfenflash123
+
+  main:
+    web-application-type: reactive
+
+  application:
+    name: gateway
+
+  servlet:
+    multipart.max-file-size: 128MB
+    multipart.max-request-size: 128MB
+
+  main.allow-circular-references: true
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 120.46.63.223:8848
+      # server-addr: localhost:8848 # 本机本地
+      # server-addr: 10.193.208.112:8848  # docker中的nacos
+
+
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+#        - id: search-service #30011
+#          uri: lb://search-service
+#          predicates:
+#            - Path=/user/search/**, /video/search/**, /zhuanlan/search/**
+
+        - id: user-service #30011
+          uri: lb://user-service
+          predicates:
+            - Path=/user-service/v3/api-docs/**, /api/user/**, /api/admin/**, /api/email/**, /api/follow/**, /api/org/**,
+
+#        - id: achievements-service #30012
+#          uri: lb://achievements-service
+#          predicates:
+#            - Path=/achievements-service/v3/api-docs/**, /api/patent/**, /api/project/**, /api/award/**, /api/document/**
+#
+#        - id: comment-service #30013
+#          uri: lb://comment-service
+#          predicates:
+#            - Path=/comment-service/v3/api-docs/**, /api/comment/**
+
+        - id: collection-service #30014
+          uri: lb://collection-service
+          predicates:
+            - Path=/collection-service/v3/api-docs/**, /api/collection/**
+
+#        - id: post-service #30015
+#          uri: lb://post-service
+#          predicates:
+#            - Path=/post/**, /post-service/**
+
+        # ==============================================================
+        # apidocs资源路由配置
+#        - id: hello-api-doc
+#          uri: lb://sample-hello/
+#          predicates:
+#            ## 转发地址格式为 uri/archive
+#            - Path=/sample-hello/v3/api-docs/**
+#          filters:
+#            - StripPrefix=1
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowed-origin-patterns: "*" # spring boot2.4配置
+#            # allowed-origins: "*"
+#            allowed-headers: "*"
+#            allow-credentials: true
+#            allowed-methods:
+#              - GET
+#              - POST
+#              - DELETE
+#              - PUT
+#              - OPTION
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+
+    # config:
+      #服务器地址
+      # server-addr: 120.46.63.223:8848
+      # 配置文件格式
+      # file-extension: yml
+
+logging:
+  level:
+    cn.itcast: debug
+  pattern:
+    dateformat: MM-dd HH:mm:ss:SSS
+
+
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /swagger-ui/index.html
+  swagger-ui:
+    urls:
+      - name: gateway
+        url: /swagger-ui/index.html
+      - name: user-service
+      # url前缀要与路由配置中的Patch呼应。
+        url: /user-service/v3/api-docs
+#      - name: achievements-service
+#        url: /achievements-service/v3/api-docs
+      - name: collection-service
+        url: /collection-service/v3/api-docs
+
